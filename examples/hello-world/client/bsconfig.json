@@ -14,7 +14,7 @@
   "suffix": ".bs.js",
   "namespace": true,
   "bs-dependencies": [
-    "apollo-reasonml",
+    "@apollo-reasonml/core",
     "reason-react"
   ],
   "refmt": 3

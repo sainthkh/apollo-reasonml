@@ -1,5 +1,5 @@
 {
-  "name": "apollo-reasonml",
+  "name": "@apollo-reasonml/core",
   "version": "0.1.0",
   "scripts": {
     "build": "bsb -make-world",

@@ -6,6 +6,7 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "apollo": "apollo-reasonml-compiler",
     "webpack": "webpack -w",
     "webpack:production": "NODE_ENV=production webpack",
     "server": "webpack-dev-server"
@@ -16,10 +17,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@apollo-reasonml/core": "^0.1.0",
     "apollo-cache-inmemory": "^1.4.3",
     "apollo-client": "^2.4.13",
     "apollo-link-http": "^1.5.11",
-    "apollo-reasonml": "^0.1.0",
     "apollo-upload-client": "^10.0.0",
     "graphql": "^14.1.1",
     "graphql-tag": "^2.10.1",
@@ -29,6 +30,7 @@
     "reason-react": "^0.5.3"
   },
   "devDependencies": {
+    "@apollo-reasonml/compiler": "^0.1.0",
     "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
