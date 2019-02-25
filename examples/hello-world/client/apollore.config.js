@@ -1,3 +1,3 @@
 module.exports = {
-  schema: "http://localhost:4000/graphql",
+  schema: "../server/src/schema.js",
 }
