@@ -9,36 +9,34 @@ const {
   decodeField,
 } = require('./decodeAST');
 
-function generateTypeListFromQuery(ast) {
-  //console.log(require('ast-pretty-print')(ast));
-
+function generateTypeListFromQuery(ast, typeMap) {
   let types = {};
-  extractType(types, ast, []);
+  extractType(types, ast, [], typeMap, "Query");
 
   let typeList = childTypes(types, types["Query"]);
   return typeList;
 }
 
-function extractType(types, ast, selectionNames) {
-  let fields = ast.selections.map(selection => {
-    if(selection.kind == "LinkedField") {
-      extractType(types, selection, [...selectionNames, selection.name]);
+function extractType(types, ast, selectionNames, typeMap, currentType) {
+  let fields = ast.selectionSet.selections.map(selection => {
+    let name = selection.name.value;
+    let typeObj = typeMap[currentType].fields[selection.name.value];
+    let typeName = typeObj.type;
+    
+    if(selection.selectionSet) {
+      extractType(types, selection, [...selectionNames, name], typeMap, typeName);
     }
 
-    let {option, typeName, array, contentOption} = interpretType(selection.type)
     return {
-      name: selection.name,
+      ...typeObj,
+      name,
       type: isScalar(typeName)
         ? typeName
-        : [...selectionNames, selection.name, typeName].join('_'),
-      option,
-      array, 
-      contentOption,
+        : [...selectionNames, name, typeName].join('_'),
     }
   })
   
-  let {typeName} = interpretType(ast.type);
-  let name = [...selectionNames, typeName].join('_');
+  let name = [...selectionNames, currentType].join('_');
   types[name] = {
     name,
     fields,
@@ -64,22 +62,6 @@ function argumentTypes(args) {
     return types;
   } else {
     return [];
-  }
-}
-
-function interpretType(type) {
-  let typeName = '' + type;
-  let option = typeName[typeName.length - 1] != '!';
-  let array = typeName[0] == '[';
-  let contentOption = array
-    ? typeName[typeName.length - (option? 2:3)] != '!'
-    : false;
-  let name = typeName.match(/\[?([A-Za-z0-9_]+)!?\]?!?/)[1];
-  return {
-    option,
-    typeName: name,
-    array,
-    contentOption,
   }
 }
 
@@ -117,8 +99,8 @@ function generateVaraiblesArgs(fields) {
 }
 
 exports.queryToReason = function(ast, typeMap) {
-  //let typeList = generateTypeListFromQuery(ast);
-  let typeList = [];
-  let args = argumentTypes(ast.definitions[0].variableDefinitions);
+  let queryRoot = ast.definitions[0];
+  let typeList = generateTypeListFromQuery(queryRoot, typeMap);
+  let args = argumentTypes(queryRoot.variableDefinitions);
   return generateReasonCode(typeList, args);
 }
