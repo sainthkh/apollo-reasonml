@@ -3,7 +3,11 @@ const {
   commentOnTop,
   childTypes,
   isScalar,
-} = require('./util')
+} = require('./util');
+
+const {
+  decodeField,
+} = require('./decodeAST');
 
 function generateTypeListFromQuery(ast) {
   //console.log(require('ast-pretty-print')(ast));
@@ -43,14 +47,7 @@ function extractType(types, ast, selectionNames) {
 
 function argumentTypes(args) {
   let fields = args.map(arg => {
-    let {option, typeName, array, contentOption} = interpretType(arg.type)
-    return {
-      name: arg.name,
-      type: typeName,
-      option,
-      array,
-      contentOption,
-    }
+    return decodeField(arg);
   })
 
   if (fields.length > 0) {
@@ -119,10 +116,9 @@ function generateVaraiblesArgs(fields) {
   return fields.map(field => `~${field.name}=vars.${field.name}`).join(',')
 }
 
-exports.queryToReason = function(code, typeMap) {
-  /*
-  let typeList = generateTypeListFromQuery(ast);
-  let args = argumentTypes(ast.argumentDefinitions);
-  return generateReasonCode(typeList, args);*/
-  return `/* reason code will be here. */`
+exports.queryToReason = function(ast, typeMap) {
+  //let typeList = generateTypeListFromQuery(ast);
+  let typeList = [];
+  let args = argumentTypes(ast.definitions[0].variableDefinitions);
+  return generateReasonCode(typeList, args);
 }

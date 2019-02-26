@@ -24,6 +24,7 @@
     "yargs": "^13.2.1"
   },
   "devDependencies": {
+    "ast-pretty-print": "^2.0.1",
     "jest": "^24.1.0"
   }
 }
