@@ -18,8 +18,12 @@
     "fs-extra": "^7.0.1",
     "graphql": "^14.1.1",
     "is-url": "^1.2.4",
+    "line-column": "^1.0.2",
     "rc": "^1.2.8",
     "request": "^2.88.0",
     "yargs": "^13.2.1"
+  },
+  "devDependencies": {
+    "jest": "^24.1.0"
   }
 }

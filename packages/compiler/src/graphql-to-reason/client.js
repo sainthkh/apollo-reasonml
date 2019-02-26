@@ -119,8 +119,10 @@ function generateVaraiblesArgs(fields) {
   return fields.map(field => `~${field.name}=vars.${field.name}`).join(',')
 }
 
-exports.queryToReason = function(ast) {
+exports.queryToReason = function(code, typeMap) {
+  /*
   let typeList = generateTypeListFromQuery(ast);
   let args = argumentTypes(ast.argumentDefinitions);
-  return generateReasonCode(typeList, args);
+  return generateReasonCode(typeList, args);*/
+  return `/* reason code will be here. */`
 }

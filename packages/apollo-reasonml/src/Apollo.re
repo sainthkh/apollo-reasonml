@@ -1,6 +1,8 @@
 open JsImport;
 
 let createInMemoryCache = JsImport.createInMemoryCache;
+type gqlQuery = JsImport.gqlQuery;
+let gql = JsImport.gql;
 
 let createHttpLink = (
   ~uri=?,

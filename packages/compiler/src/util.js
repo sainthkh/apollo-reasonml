@@ -3,7 +3,12 @@ const argv = require('yargs').argv;
 const isUrl = require('is-url');
 const chokidar = require('chokidar');
 const {parse} = require('graphql');
-const {schemaToReason} = require('./graphql-to-reason/schema');
+const {
+  schemaToReason,
+  queryToReason,
+  createTypeMap,
+  findTags,
+} = require('./graphql-to-reason');
 
 const fs = require('fs-extra');
 const path = require('path');
@@ -85,26 +90,42 @@ function extendWithClientSchema({client}, ast) {
 }
 
 const DEST_DIR = './src/.apollo';
+fs.ensureDirSync(DEST_DIR);
 
 function generateSchemaTypes(ast) {
   let {reason, codec} = schemaToReason(ast);
 
-  fs.ensureDirSync(DEST_DIR);
   fs.writeFileSync(path.join(DEST_DIR, 'SchemaTypes.re'), reason);
   fs.writeFileSync(path.join(DEST_DIR, 'SchemaTypes.codec.js'), codec);
 }
 
 function generateTypeFiles({include, exclude, watch, src}, ast) {
+  let typeMap = createTypeMap(ast);
+
   include = Array.isArray(include) ? include : [include];
   const patterns = include.map(inc => `${inc}/*.re`);
 
-  if(!watch) {
-    const files = glob.sync(patterns, {
-      cwd: src,
-      ignore: exclude,
-    });
-    console.log(files);
-  }
+  const files = glob.sync(patterns, {
+    cwd: src,
+    ignore: exclude,
+  });
+  
+  let gqlCodes = [];
+
+  files.forEach(filePath => {
+    let code = fs.readFileSync(path.join(src, filePath)).toString();
+    gqlCodes = gqlCodes.concat(findTags(code));
+  });
+  
+  gqlCodes.forEach(code => {
+    generateTypeFile(code, typeMap);
+  })
+}
+
+function generateTypeFile(gqlCode, typeMap) {
+  let ast = parse(gqlCode.template);
+  let code = queryToReason(ast, typeMap);
+  fs.writeFileSync(path.join(DEST_DIR, `${ast.definitions[0].name.value}.re`), code);
 }
 
 module.exports = {
@@ -113,4 +134,5 @@ module.exports = {
   extendWithClientSchema,
   generateSchemaTypes,
   generateTypeFiles,
+  generateTypeFile,
 }

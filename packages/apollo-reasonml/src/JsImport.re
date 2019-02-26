@@ -38,5 +38,7 @@ type apolloClientOptions = {
 [@bs.module "apollo-client"] [@bs.new]
 external createApolloClientJS: 'a => apolloClient = "ApolloClient";
 
-[@bs.module "react-apollo"]
-external apolloProvider : ReasonReact.reactClass = "ApolloProvider";
+type gqlQuery;
+
+[@bs.module "graphql-tag"]
+external gql: string => gqlQuery = "default";
