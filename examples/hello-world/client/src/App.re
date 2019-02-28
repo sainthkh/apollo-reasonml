@@ -1,3 +1,5 @@
+open AppQuery;
+
 let component = ReasonReact.statelessComponent("App")
 
 let query = Apollo.gql({|
@@ -8,12 +10,19 @@ let query = Apollo.gql({|
   }
 |})
 
+module Query = Connect.Apollo.Query(AppQuery);
+
 let make = (_children) => {
   ...component,
 
   render: _self => {
-    <div>
-
-    </div>
+    <Query
+      variables=encodeVariables()
+      render=(_response => {
+        <div>
+          { ReasonReact.string("Hello") }
+        </div>
+      })
+    />
   }
 }

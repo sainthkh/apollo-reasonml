@@ -46,23 +46,31 @@ let createUploadLink = (
   );
 }
 
-let createApolloClient = (
+let clientOptions = (
   ~link,
   ~cache,
-  ~ssrMode=?,
-  ~ssrForceFetchDelay=?,
   ~connectToDevTools=?,
   ~queryDuplication=?,
   ()
 ) => {
-  createApolloClientJS(
-    apolloClientOptions(
-      ~link=link,
-      ~cache=cache,
-      ~ssrMode=ssrMode,
-      ~ssrForceFetchDelay=ssrForceFetchDelay,
-      ~connectToDevTools=connectToDevTools,
-      ~queryDuplication=queryDuplication
-    )
-  );
+  apolloClientOptions(
+    ~link=link,
+    ~cache=cache,
+    ~connectToDevTools=connectToDevTools,
+    ~queryDuplication=queryDuplication,
+  )
+};
+
+module type ApolloConfig = {
+  let clientOptions: apolloClientOptions;
+};
+
+module Init = (Config: ApolloConfig) => {
+  let client = createApolloClientJS(Config.clientOptions);
+
+  module Component = Apollo__Components.Make({
+    let client = client;
+  });
+
+  module Query = Component.MakeQuery;
 }

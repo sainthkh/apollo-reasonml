@@ -29,10 +29,9 @@ type apolloClient;
 type apolloClientOptions = {
   link: apolloLink,
   cache: apolloCache,
-  ssrMode: option(bool),
-  ssrForceFetchDelay: option(int),
   connectToDevTools: option(bool),
   queryDuplication: option(bool),
+  /* TODO: support other options. */
 };
 
 [@bs.module "apollo-client"] [@bs.new]

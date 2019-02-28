@@ -3,8 +3,11 @@ let httpLink = Apollo.createHttpLink(
   ()
 );
 let cache = Apollo.createInMemoryCache();
-let client = Apollo.createApolloClient(
-  ~link=httpLink,
-  ~cache=cache,
-  ()
-);
+
+module Apollo = Apollo.Init({
+  let clientOptions = Apollo.clientOptions(
+    ~link=httpLink,
+    ~cache=cache,
+    ()
+  );
+});
