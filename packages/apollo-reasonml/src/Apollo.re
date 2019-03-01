@@ -1,8 +1,8 @@
-open JsImport;
+open Apollo__Types;
 
-let createInMemoryCache = JsImport.createInMemoryCache;
-type gqlQuery = JsImport.gqlQuery;
-let gql = JsImport.gql;
+let createInMemoryCache = Apollo__Types.createInMemoryCache;
+type gqlQuery = Apollo__Types.gqlQuery;
+let gql = Apollo__Types.gql;
 
 let createHttpLink = (
   ~uri=?,

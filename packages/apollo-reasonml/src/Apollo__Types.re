@@ -1,11 +1,57 @@
+type fetchPolicy =
+  | CacheFirst
+  | CacheAndNetwork
+  | NetworkOnly
+  | CacheOnly
+  | NoCache
+  | StandBy
+
+let string_of_fetchPolicy = policy => 
+  switch(policy) {
+  | CacheFirst => "cache-first"
+  | CacheAndNetwork => "cache-and-network"
+  | NetworkOnly => "network-only"
+  | CacheOnly => "cache-only"
+  | NoCache => "no-cache"
+  | StandBy => "stand-by"
+  }
+
+type errorPolicy = 
+  | NoPolicy
+  | All
+  | Ignore
+
+let string_of_errorPolicy = policy => 
+  switch(policy) {
+  | NoPolicy => "none"
+  | All => "all"
+  | Ignore => "ignore"
+  };
+
+type gqlQuery;
 type apolloCache;
+type apolloLink;
+type fetch;
+
+[@bs.deriving abstract]
+type observableQueryOpts = {
+  variables: option(Js.Json.t),
+  fetchPolicy: string,
+  errorPolicy: string,
+  query: gqlQuery,
+  pollInterval: int,
+  notifyOnNetworkStatusChange: bool,
+};
+
+type observableQuery;
+type apolloClient = Js.t({.
+  [@bs.meth] watchQuery: observableQueryOpts => observableQuery,
+});
+
 
 [@bs.module "apollo-cache-inmemory"]
 [@bs.new]
 external createInMemoryCache : 'a => apolloCache = "InMemoryCache";
-
-type apolloLink;
-type fetch;
 
 [@bs.deriving abstract]
 type linkOptions = {
@@ -23,8 +69,6 @@ external createHttpLinkJs: linkOptions => apolloLink = "HttpLink";
 [@bs.module "apollo-upload-client"]
 external createUploadLinkJs: linkOptions => apolloLink = "createUploadLink";
 
-type apolloClient;
-
 [@bs.deriving abstract]
 type apolloClientOptions = {
   link: apolloLink,
@@ -36,8 +80,6 @@ type apolloClientOptions = {
 
 [@bs.module "apollo-client"] [@bs.new]
 external createApolloClientJS: 'a => apolloClient = "ApolloClient";
-
-type gqlQuery;
 
 [@bs.module "graphql-tag"]
 external gql: string => gqlQuery = "default";
