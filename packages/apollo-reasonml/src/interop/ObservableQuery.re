@@ -38,7 +38,7 @@ module Make = (Q: QueryConfig) => {
   };
 
   let subscribe: observer => subscription = observer => {
-    let Some(queryObservable) = queryObservable^;
+    let queryObservable = Belt.Option.getExn(queryObservable^);
     queryObservable##subscribe(observer);
   }
 }
