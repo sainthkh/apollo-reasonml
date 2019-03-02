@@ -1,8 +1,9 @@
-open Apollo__Types;
+open ApolloLink;
+open ApolloClient;
 
-let createInMemoryCache = Apollo__Types.createInMemoryCache;
-type gqlQuery = Apollo__Types.gqlQuery;
-let gql = Apollo__Types.gql;
+let createInMemoryCache = ApolloCache.createInMemoryCache;
+type gqlQuery = GraphqlTypes.gqlQuery;
+let gql = GraphqlTypes.gql;
 
 let createHttpLink = (
   ~uri=?,
@@ -53,7 +54,7 @@ let clientOptions = (
   ~queryDuplication=?,
   ()
 ) => {
-  apolloClientOptions(
+  ApolloClient.apolloClientOptions(
     ~link=link,
     ~cache=cache,
     ~connectToDevTools=connectToDevTools,

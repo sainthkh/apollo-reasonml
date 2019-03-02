@@ -1,7 +1,8 @@
-open Apollo__Types;
+open GraphqlTypes;
+open QueryTypes;
 
 module type QueryConfig = {
-  let client: apolloClient;
+  let client: ApolloClient.apolloClient;
 
   type variablesType;
   let encodeVariables: variablesType => Js.Json.t;
@@ -36,10 +37,8 @@ module Make = (Q: QueryConfig) => {
     queryObservable := Some(Q.client##watchQuery(opts));
   };
 
-  type observer;
-  type subscription;
-
   let subscribe: observer => subscription = observer => {
-
+    let Some(queryObservable) = queryObservable^;
+    queryObservable##subscribe(observer);
   }
 }

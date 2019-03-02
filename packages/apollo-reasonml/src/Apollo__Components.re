@@ -1,5 +1,5 @@
 module type Config = {
-  let client: Apollo__Types.apolloClient;
+  let client: ApolloClient.apolloClient;
 };
 
 module Make = (Config: Config) => {

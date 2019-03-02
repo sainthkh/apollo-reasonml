@@ -1,7 +1,8 @@
-open Apollo__Types;
+open GraphqlTypes;
+open QueryTypes;
 
 module type Config = {
-  let client: apolloClient;
+  let client: ApolloClient.apolloClient;
 };
 
 module Make = (Config: Config) => {
