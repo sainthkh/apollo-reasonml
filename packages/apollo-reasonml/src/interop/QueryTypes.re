@@ -71,28 +71,32 @@ type observableQueryOpts = {
   notifyOnNetworkStatusChange: bool,
 };
 
-type apolloQueryResult = Js.t({.
-  data: Js.Json.t,
-  errors: Js.Nullable.t(array(graphqlError)),
-  loading: bool,
-  networkStatus: int,
-});
-
-type apolloError = Js.t({.
+type apolloErrorJs = Js.t({.
   message: string,
-  grqphqlErrors: array(graphqlError),
+  graphqlErrors: array(graphqlErrorJs),
   networkError: Js.Nullable.t(Js.Exn.t),
 });
 
-type observer = {
-  next: apolloQueryResult => unit,
-  error: apolloError => unit,
-};
-
-type subscription = Js.t({.
-  unsubscribe: unit => unit,
+type observerJs = Js.t({.
+  next: unit => unit,
+  error: unit => unit,
 });
 
+type subscription = Js.t({.
+  [@bs.meth] unsubscribe: unit => unit,
+});
+
+type apolloCurrentQueryResultJs = Js.t({.
+  data: option(Js.Json.t),
+  errors: option(array(graphqlErrorJs)),
+  loading: bool,
+  networkStatus: int,
+  error: option(apolloErrorJs),
+  partial: option(bool),
+  stale: option(bool),
+})
+
 type observableQuery = Js.t({.
-  [@bs.meth] subscribe: observer => subscription
+  [@bs.meth] subscribe: observerJs => subscription,
+  [@bs.meth] getCurrentResult: unit => apolloCurrentQueryResultJs,
 });

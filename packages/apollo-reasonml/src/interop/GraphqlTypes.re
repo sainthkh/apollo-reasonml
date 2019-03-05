@@ -9,16 +9,19 @@ type gqlSource = Js.t({.
   locationOffset: sourceLocation,
 });
 
-type graphqlError = Js.t({.
+type graphqlErrorJs = Js.t({.
   message: string,
   locations: option(array(sourceLocation)),
   path: option(array(string)),
-  nodes: option(array(Js.Json.t)),
   source: option(gqlSource),
   positions: option(array(int)),
+  extensions: option(Js.Json.t),
 });
 
-type gqlQuery;
+let decodeGraphqlErrors = (errors, decodeExtension) => {
+  [||]
+}
 
+type gqlQuery;
 [@bs.module "graphql-tag"]
 external gql: string => gqlQuery = "default";

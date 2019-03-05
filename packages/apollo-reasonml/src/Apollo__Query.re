@@ -11,39 +11,44 @@ module Make = (Config: Config) => {
     type schemaQueryResponse;
     let decodeResponse: Js.Json.t => schemaQueryResponse;
     let encodeVariables: variablesType => Js.Json.t;
+    type errorExtension;
+    let decodeExtension: Js.Json.t => errorExtension;
   };
 
   module MakeQuery = (Q: QueryConfig) => {
     module QueryObservable = ObservableQuery.Make({
       let client = Config.client;
       
+      type schemaQueryResponse = Q.schemaQueryResponse;
+      let decodeResponse = Q.decodeResponse;
       type variablesType = Q.variablesType;
       let encodeVariables = Q.encodeVariables;
+
+      type errorExtension = Q.errorExtension;
+      let decodeExtension = Q.decodeExtension;
     })
 
     type queryStatus = 
       | Loading
-      | Error
-      | Data
+      | Error(array(QueryObservable.graphqlError))
+      | Data(Q.schemaQueryResponse)
     ;
-
-    type graphqlError = {
-      message: string,
-    };
 
     type response = {
       status: queryStatus,
       data: option(Q.schemaQueryResponse),
-      errors: option(array(graphqlError)),
+      errors: option(array(QueryObservable.graphqlError)),
+      networkStatus: networkStatus,
     };
 
     type state = {
-      data: option(Q.schemaQueryResponse),
+      response: response,
+      prevResponse: response,
     };
 
     type action = 
-      | Fetch
-      | Update
+      | QueryLoaded
+      | Update(response)
     ;
 
     let component:
@@ -55,6 +60,13 @@ module Make = (Config: Config) => {
         action,
       ) = ReasonReact.reducerComponent("Query");
 
+    let initialResponse = {
+      status: Loading,
+      data: None,
+      errors: None,
+      networkStatus: Loading,
+    };
+
     let make = (
       ~query: gqlQuery,
       ~variables: option(Q.variablesType),
@@ -62,15 +74,15 @@ module Make = (Config: Config) => {
       ~errorPolicy: errorPolicy = NoPolicy,
       ~pollInterval: int = 0,
       ~notifyOnNetworkStatusChange: bool = false,
-      ~render: response => ReasonReact.reactElement,
-      _children
+      children: array(response => ReasonReact.reactElement),
     ) => {
       ...component,
       initialState: () => {
-        data: None,
+        response: initialResponse,
+        prevResponse: initialResponse,
       },
 
-      didMount: _self => {
+      didMount: self => {
         QueryObservable.init(
           ~variables=variables,
           ~query=query,
@@ -80,22 +92,43 @@ module Make = (Config: Config) => {
           ~notifyOnNetworkStatusChange=notifyOnNetworkStatusChange,
           ()
         );
+
+        let loaded = () => self.send(QueryLoaded)
+        QueryObservable.subscribe({
+          next: loaded,
+          error: loaded,
+        });
       },
 
-      reducer: (action: action, _state: state) => {
+      reducer: (action: action, state: state) => {
         switch(action) {
-        | Fetch => ReasonReact.Update({ data: None })
-        | Update => ReasonReact.Update({ data: None })
+        | QueryLoaded => ReasonReact.SideEffects(self => {
+          let result = QueryObservable.currentResult();
+
+          let status = 
+            switch(result.loading, result.errors) {
+            | (true, _) => Loading
+            | (false, None) => Data(Belt.Option.getExn(result.data))
+            | (false, Some(_)) => Error(Belt.Option.getExn(result.errors))
+            };
+
+          self.send(Update({
+            status,
+            data: result.data,
+            errors: result.errors,
+            networkStatus: result.networkStatus,
+          }))
+        })
+        | Update(response) => ReasonReact.Update({ 
+            response: response,
+            prevResponse: state.response,
+          })
         }
       },
 
-      render: _self => {
+      render: self => {
         <>
-          { render({
-            status: Loading,
-            data: None,
-            errors: None,
-          })}
+          {children[0](self.state.response);}
         </>
       }
     }

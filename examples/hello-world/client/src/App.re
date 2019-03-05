@@ -10,19 +10,21 @@ let query = Apollo.gql({|
   }
 |})
 
-module Query = Connect.Apollo.Query(AppQuery);
+module Query = Create.Apollo.Query(AppQuery);
 
 let make = (_children) => {
   ...component,
 
   render: _self => {
     <Query
-      variables=encodeVariables()
-      render=(_response => {
+      query
+      variables=None
+    >
+      {_response => {
         <div>
           { ReasonReact.string("Hello") }
         </div>
-      })
-    />
+      }}
+    </Query>
   }
 }
